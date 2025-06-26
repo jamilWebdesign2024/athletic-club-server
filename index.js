@@ -28,17 +28,40 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
         const eventsCollection = client.db("athleticClub").collection("sports");
+        const bookingsCollection = client.db("athleticClub").collection("bookings");
 
 
+       // ✅ 1. Create New Event
         app.post('/events', async (req, res) => {
-            const eventData = req.body; // <-- এইটা React থেকে আসা ডেটা
-            console.log('Received Event:', eventData); // দেখতে পারবেন টার্মিনালে
-
-            const result = await eventsCollection.insertOne(eventData); // MongoDB তে Insert
-            res.send(result); // React এ পাঠিয়ে দিন response
+            const eventData = req.body;
+            const result = await eventsCollection.insertOne(eventData);
+            res.send(result);
         });
 
+        // ✅ 2. Get Single Event by ID
+        app.get('/events/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const event = await eventsCollection.findOne(query);
+            res.send(event);
+        });
 
+        // ✅ 3. Book an Event (with user_email)
+        app.post('/bookings', async (req, res) => {
+            const bookingData = req.body;
+            if (!bookingData?.user_email) {
+                return res.status(400).send({ success: false, message: "User email required." });
+            }
+
+            const result = await bookingsCollection.insertOne(bookingData);
+            res.send({ success: true, insertedId: result.insertedId });
+        });
+
+        // Optional: See all bookings
+        app.get('/bookings', async (req, res) => {
+            const bookings = await bookingsCollection.find().toArray();
+            res.send(bookings);
+        });
 
 
 
