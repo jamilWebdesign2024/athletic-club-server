@@ -36,12 +36,39 @@ async function run() {
             const result = await eventsCollection.insertOne(eventData);
             res.send(result);
         });
+        app.get('/events', async (req, res) => {
+            const email = req.query.creator_email;
+            const query = { creator_email: email };
+            const result = await eventsCollection.find(query).toArray();
+            res.send(result);
+        });
 
         app.get('/sports', async (req, res) => {
             const cursor = eventsCollection.find();
             const result = await cursor.toArray();
             res.send(result)
         })
+
+        app.put('/sports/:id', async(req, res)=>{
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id)}
+            const options = {upsert: true};
+            const updatedEvents =req.body;
+            const updatedDoc ={
+                $set: updatedEvents
+            }
+            const result = await eventsCollection.updateOne(filter)
+
+        })
+
+
+        app.delete('/events/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await eventsCollection.deleteOne(query);
+            res.send(result);
+        });
+
         app.get('/sports/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
@@ -67,10 +94,10 @@ async function run() {
 
         app.delete('/bookings/:id', async (req, res) => {
             const id = req.params.id;
-            const result = await bookingsCollection.deleteOne({ _id: new ObjectId(id) });
+            const query = { _id: id };
+            const result = await bookingsCollection.deleteOne(query);
             res.send(result);
         });
-
 
 
 
