@@ -57,8 +57,9 @@ async function run() {
             const updatedDoc ={
                 $set: updatedEvents
             }
-            const result = await eventsCollection.updateOne(filter)
-
+            const result = await eventsCollection.updateOne(filter, updatedDoc, options);
+            res.send(result)
+            
         })
 
 
