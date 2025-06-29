@@ -42,6 +42,18 @@ async function run() {
             const result = await eventsCollection.find(query).toArray();
             res.send(result);
         });
+        app.get('/featured-events', async (req, res) => {
+        try {
+        const result = await eventsCollection.find()
+            .sort({ _id: -1 })  // _id এর উপরে sort করলে, নতুন entry আগে আসবে
+            .limit(6)
+            .toArray();
+        res.send(result);
+        } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Failed to fetch featured events' });
+        }
+        });
 
         app.get('/sports', async (req, res) => {
             const cursor = eventsCollection.find();
@@ -99,6 +111,7 @@ async function run() {
             const result = await bookingsCollection.deleteOne(query);
             res.send(result);
         });
+        
 
 
 
